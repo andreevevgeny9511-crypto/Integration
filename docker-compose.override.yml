@@ -1,0 +1,36 @@
+# ============================================================
+# Bitrix24 ↔ Listok Integration — Docker Compose Override
+# For development use only. Never commit to production.
+# ============================================================
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    ports:
+      - "3000:3000"
+      - "9090:9090"  # Metrics port
+    command: npm run dev
+
+  db:
+    ports:
+      - "5432:5432"  # Expose DB port for local tools
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  nginx:
+    ports:
+      - "8080:8080"  # Nginx status page
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
